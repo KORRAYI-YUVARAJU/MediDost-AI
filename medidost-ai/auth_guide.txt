@@ -1,0 +1,56 @@
+====================================================
+        MEDIDOST-AI: AUTHENTICATION & LOGIN FLOW
+====================================================
+
+This file outlines the architecture for the registration 
+and login system within the Medidost-AI application.
+
+1. TECHNOLOGY STACK
+-------------------
+- Frontend: Next.js (React) form handlers
+- Backend: Next.js API Routes (/api/auth/register, /api/auth/login)
+- Database: MongoDB Cloud (Atlas) via 'mongodb' npm package
+- Security: 'bcryptjs' for secure password hashing
+- Session Storage: HTML5 LocalStorage (for client session persistence)
+
+2. MONGODB ARCHITECTURE
+-----------------------
+- Collection Used: `users`
+- Schema: 
+  {
+    _id: ObjectId,
+    name: "User Name",
+    email: "user@example.com",
+    password: "hashed_password_string",
+    createdAt: Date()
+  }
+
+3. REGISTRATION PROCESS (/api/auth/register)
+--------------------------------------------
+1. The user inputs their Name, Email, and Password on the flip-card UI.
+2. The frontend sends a POST request with the JSON payload.
+3. The server checks the MongoDB `users` collection to ensure the 
+   email does not already exist.
+4. If unique, the server uses `bcrypt.hash(password, 10)` to securely 
+   hash the plain text password (salting it 10 times).
+5. The hashed password and user details are inserted into the database.
+6. A success response is returned to the frontend.
+
+4. LOGIN PROCESS (/api/auth/login)
+----------------------------------
+1. The user inputs their Email and Password on the front side of the card.
+2. The frontend sends a POST request with the JSON payload.
+3. The server queries the MongoDB `users` collection for the Email.
+4. If the user is found, the server runs `bcrypt.compare(inputPassword, dbPassword)`.
+5. If the mathematically generated hashes match, authentication succeeds.
+6. The server returns { success: true, user: { name, email } } to the client.
+7. The client saves `medidost_user_name` in LocalStorage and routes to `/dashboard`.
+
+5. SECURITY ASSURANCE
+---------------------
+- No plain-text passwords ever touch the database.
+- Even if the MongoDB instance is compromised by a malicious actor, the user's 
+  passwords cannot be reconstructed because they are stored uniquely salted 
+  using bcrypt.
+- The MongoDB instance URI is securely kept as a server-side only secret inside 
+  the `.env.local` file.
