@@ -1,0 +1,33 @@
+====================================================
+      MEDIDOST-AI: DEMO LOGIN CREDENTIALS
+====================================================
+
+You can use the following accounts for your pitch 
+and presentation. These accounts have already been 
+pre-registered and synced with your MongoDB Database.
+
+----------------------------------------------------
+ ACCOUNT #1: The Patient 
+----------------------------------------------------
+  👤 Name:      Rahul Sharma
+  ✉️ Email:     rahul@demo.com
+  🔑 Password:  DemoPass123!
+
+----------------------------------------------------
+ ACCOUNT #2: The Doctor
+----------------------------------------------------
+  👤 Name:      Dr. Sarah Jenkins
+  ✉️ Email:     sarah@demo.com
+  🔑 Password:  DemoPass123!
+
+----------------------------------------------------
+ ACCOUNT #3: Quick Guest 
+----------------------------------------------------
+  👤 Name:      Guest User
+  ✉️ Email:     guest@demo.com
+  🔑 Password:  DemoPass123!
+
+----------------------------------------------------
+Wait, forgot one detail! Make sure your local Next.js
+server (`npm run dev`) is running so the login screen
+can successfully pull these from MongoDB.

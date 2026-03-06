@@ -1,0 +1,360 @@
+/* ── Floating card animation ─────────────────────────────────── */
+@keyframes floatCard {
+    0% {
+        transform: perspective(1200px) translateY(0px) rotate3d(1, 0.4, 0, 0deg);
+    }
+
+    25% {
+        transform: perspective(1200px) translateY(-9px) rotate3d(1, 0.4, 0, 0.5deg);
+    }
+
+    50% {
+        transform: perspective(1200px) translateY(-14px) rotate3d(1, 0.4, 0, 0deg);
+    }
+
+    75% {
+        transform: perspective(1200px) translateY(-9px) rotate3d(1, 0.4, 0, -0.5deg);
+    }
+
+    100% {
+        transform: perspective(1200px) translateY(0px) rotate3d(1, 0.4, 0, 0deg);
+    }
+}
+
+/* ── 3D Card Flip ─────────────────────────────────────────────── */
+.flip-scene {
+    width: 100%;
+    max-width: 460px;
+    perspective: 1200px;
+    position: relative;
+    z-index: 10;
+
+    /* Gentle floating bob — runs while idle */
+    animation: floatCard 5s ease-in-out infinite;
+}
+
+/* ── Pause float on hover ── */
+.flip-scene:hover {
+    animation-play-state: paused;
+}
+
+/* ── Pause float when any input/button inside is focused ── */
+.flip-scene:focus-within {
+    animation-play-state: paused;
+}
+
+.flip-card {
+    width: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.flip-scene.is-flipped .flip-card {
+    transform: rotateY(-180deg);
+}
+
+.flip-face {
+    position: relative;
+
+    /* ── Fog glass core ── */
+    background:
+        /* milky white fog tint */
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.13) 0%,
+            rgba(255, 255, 255, 0.06) 50%,
+            rgba(255, 255, 255, 0.10) 100%);
+    backdrop-filter: blur(72px) saturate(140%) brightness(1.08);
+    -webkit-backdrop-filter: blur(72px) saturate(140%) brightness(1.08);
+
+    border-radius: 28px;
+    padding: 48px;
+
+    /* ── Borders: top & left shimmer, bottom & right fade ── */
+    border-top: 1px solid rgba(255, 255, 255, 0.30);
+    border-left: 1px solid rgba(255, 255, 255, 0.22);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+    /* ── Shadows: depth + soft ambient glow ── */
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.35),
+        0 32px 72px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+
+    /* ── Required for 3D flip ── */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ── SVG noise grain texture overlay ── */
+.flip-face::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    pointer-events: none;
+    /* fractal noise SVG as a data URI */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fog'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fog)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.032;
+    mix-blend-mode: overlay;
+    z-index: 0;
+}
+
+/* Ensure form content sits above the grain layer */
+.flip-face>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Fog condensation highlight ring on hover ── */
+.flip-face:hover {
+    border-top-color: rgba(255, 255, 255, 0.42);
+    border-left-color: rgba(255, 255, 255, 0.30);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.40),
+        0 32px 80px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+        0 0 0 1px rgba(34, 211, 238, 0.08);
+    transition: border-color 0.4s, box-shadow 0.4s;
+}
+
+/* Back face starts rotated 180deg so it appears when the card flips */
+.flip-back {
+    position: absolute;
+    inset: 0;
+    /* allow back face to grow taller if needed */
+    height: max-content;
+    transform: rotateY(180deg);
+}
+
+/* ── Auth Container ───────────────────────────────────────────── */
+.auth-container {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 24px;
+    overflow: hidden;
+    background: #030712;
+}
+
+/* Full-screen Spline canvas — behind everything */
+.auth-spline-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    transform: translateZ(0);
+    will-change: transform;
+    pointer-events: none;
+}
+
+.auth-spline-bg>div,
+.auth-spline-bg canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+}
+
+/* 10% black overlay — barely dims the scene */
+.auth-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.10);
+    pointer-events: none;
+}
+
+
+
+
+.auth-back {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-back:hover {
+    color: var(--cyan);
+    transform: translateX(-4px);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(135deg, var(--surface), rgba(3, 7, 18, 0.4));
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    backdrop-filter: blur(20px);
+    padding: 48px;
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.auth-header .logo-mark {
+    margin: 0 auto 20px;
+    width: 54px;
+    height: 54px;
+    font-size: 26px;
+    border-radius: 14px;
+}
+
+.auth-header h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.auth-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(241, 245, 249, 0.90);
+    /* near-white, clearly legible */
+    letter-spacing: 0.03em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.form-group input {
+    background: rgba(3, 7, 18, 0.5);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    background: rgba(3, 7, 18, 0.8);
+}
+
+.form-group input::placeholder {
+    color: var(--text-subtle);
+    opacity: 0.5;
+}
+
+.auth-submit {
+    width: 100%;
+    margin-top: 12px;
+    padding: 16px;
+    font-size: 1rem;
+    border-radius: 12px;
+}
+
+.auth-footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-link {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+    color: #a78bfa;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    color: var(--text-subtle);
+    font-size: 0.85rem;
+    margin: 20px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.auth-divider span {
+    padding: 0 12px;
+}
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-google:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-google:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .auth-card {
+        padding: 32px 24px;
+    }
+}
