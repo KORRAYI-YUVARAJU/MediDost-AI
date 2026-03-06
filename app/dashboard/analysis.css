@@ -1,0 +1,405 @@
+/* ── Post-Analysis styles ─────────────────────────────────────── */
+
+/* ── Report Active badge (topbar) ── */
+.report-active-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    background: rgba(102, 187, 106, 0.12);
+    border: 1px solid rgba(102, 187, 106, 0.35);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #66bb6a;
+}
+
+.report-active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #66bb6a;
+    animation: statusPulse 1.8s ease-in-out infinite;
+}
+
+/* ── Active file card ── */
+.active-file-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: rgba(59, 158, 255, 0.07);
+    border: 1px solid rgba(59, 158, 255, 0.25);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    animation: slideUp 0.4s ease;
+}
+
+.active-file-card:hover {
+    background: rgba(59, 158, 255, 0.12);
+    border-color: rgba(59, 158, 255, 0.4);
+}
+
+.active-file-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.active-file-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+}
+
+.active-file-meta {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.active-file-close {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.active-file-close:hover {
+    background: rgba(255, 82, 82, 0.15);
+    color: #ff5252;
+    border-color: rgba(255, 82, 82, 0.3);
+}
+
+/* ── Overview stat cards ── */
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.stat-card {
+    padding: 12px 8px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: default;
+    transition: transform 0.2s;
+    animation: slideUp 0.4s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card.critical {
+    background: rgba(255, 82, 82, 0.08);
+    border-color: rgba(255, 82, 82, 0.25);
+}
+
+.stat-card.borderline {
+    background: rgba(255, 183, 77, 0.08);
+    border-color: rgba(255, 183, 77, 0.25);
+}
+
+.stat-card.normal {
+    background: rgba(102, 187, 106, 0.08);
+    border-color: rgba(102, 187, 106, 0.25);
+}
+
+.stat-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.stat-card.critical .stat-icon {
+    color: #ff5252;
+}
+
+.stat-card.borderline .stat-icon {
+    color: #ffb74d;
+}
+
+.stat-card.normal .stat-icon {
+    color: #66bb6a;
+}
+
+.stat-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+.stat-card.critical .stat-num {
+    color: #ff5252;
+}
+
+.stat-card.borderline .stat-num {
+    color: #ffb74d;
+}
+
+.stat-card.normal .stat-num {
+    color: #66bb6a;
+}
+
+.stat-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+/* ── Biomarker rows ── */
+.biomarker-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.biomarker-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.biomarker-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
+}
+
+.biomarker-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    animation: slideUp 0.35s ease;
+}
+
+.biomarker-row:hover {
+    background: var(--s-dim);
+    border-color: rgba(var(--s-color), 0.25);
+    transform: translateX(3px);
+}
+
+.biomarker-row.selected {
+    background: var(--s-dim);
+    border-color: var(--s-color);
+    transform: translateX(3px);
+}
+
+.bio-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+}
+
+.bio-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.bio-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+}
+
+.bio-normal {
+    font-size: 0.65rem;
+    color: var(--text-subtle);
+    margin-top: 1px;
+}
+
+.bio-value {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-align: right;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+.bio-unit {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+/* ── Analyse progress (uploading state) ── */
+.analyse-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: slideUp 0.4s ease;
+}
+
+.analyse-file-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: var(--radius);
+    background: rgba(59, 158, 255, 0.07);
+    border: 1px solid rgba(59, 158, 255, 0.2);
+}
+
+.analyse-file-icon {
+    font-size: 20px;
+}
+
+.analyse-file-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+}
+
+.analyse-file-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.analyse-bar-track {
+    width: 100%;
+    height: 4px;
+    border-radius: 99px;
+    background: rgba(59, 158, 255, 0.12);
+    overflow: hidden;
+}
+
+.analyse-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #3b9eff, #7c5cfc);
+    animation: analyseFill 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes analyseFill {
+    0% {
+        width: 0%;
+    }
+
+    30% {
+        width: 35%;
+    }
+
+    60% {
+        width: 70%;
+    }
+
+    85% {
+        width: 88%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+.analyse-steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.62rem;
+    color: var(--text-subtle);
+    flex-wrap: wrap;
+}
+
+.analyse-steps-dot {
+    color: var(--text-subtle);
+    font-size: 8px;
+}
+
+/* ── Critical Metrics overlay (centre panel) ── */
+.critical-metrics-panel {
+    position: absolute;
+    bottom: 60px;
+    left: 16px;
+    background: rgba(10, 13, 20, 0.88);
+    border: 1px solid rgba(255, 82, 82, 0.25);
+    backdrop-filter: blur(16px);
+    border-radius: 14px;
+    padding: 12px;
+    min-width: 190px;
+    z-index: 20;
+    animation: slideUp 0.5s ease;
+}
+
+.cm-header {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ff5252;
+    margin-bottom: 10px;
+}
+
+.cm-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: rgba(255, 82, 82, 0.1);
+    border: 1px solid rgba(255, 82, 82, 0.2);
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    margin-top: 6px;
+}
+
+.cm-card:hover {
+    background: rgba(255, 82, 82, 0.18);
+    border-color: rgba(255, 82, 82, 0.4);
+    transform: translateX(2px);
+}
+
+.cm-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff5252;
+    flex-shrink: 0;
+    animation: statusPulse 1.6s ease-in-out infinite;
+}
+
+.cm-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.cm-val {
+    font-size: 0.68rem;
+    color: #ff5252;
+    font-weight: 600;
+}

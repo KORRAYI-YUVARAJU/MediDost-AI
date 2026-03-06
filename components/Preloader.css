@@ -1,0 +1,107 @@
+/* ─── Preloader overlay ──────────────────────────────────────────────────── */
+.spline-preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 1;
+    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: all;
+}
+
+.spline-preloader canvas,
+.spline-preloader>div:not(.preloader-bar-wrap) {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.spline-preloader--out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ─── Loading bar — sits at the bottom of the overlay ───────────────────── */
+.preloader-bar-wrap {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(420px, calc(100vw - 64px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+
+    /* glass card */
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 18px 22px;
+}
+
+.preloader-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preloader-label {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+    transition: color 0.4s ease;
+}
+
+.preloader-label--done {
+    color: rgba(180, 160, 255, 0.85);
+}
+
+.preloader-pct {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.5);
+    min-width: 36px;
+    text-align: right;
+}
+
+/* The track */
+.preloader-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+/* The fill */
+.preloader-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+            rgba(140, 100, 255, 0.6) 0%,
+            rgba(200, 180, 255, 0.9) 60%,
+            rgba(255, 255, 255, 1) 100%);
+    box-shadow: 0 0 12px rgba(180, 150, 255, 0.6),
+        0 0 30px rgba(180, 150, 255, 0.25);
+    transition: width 0.12s linear;
+    will-change: width;
+}
+
+/* ─── Main content ───────────────────────────────────────────────────────── */
+.spline-main-content {
+    opacity: 0;
+    transition: opacity 0.6s ease 0.3s;
+}
+
+.spline-main-content--visible {
+    opacity: 1;
+}
