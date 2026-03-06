@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
+import { Application } from '@splinetool/runtime';
 import './Preloader.css';
-
-const Spline = dynamic(() => import('@splinetool/react-spline'), { ssr: false });
 
 export default function SplinePreloader({ children }) {
     const [progress, setProgress] = useState(0);
@@ -12,6 +10,7 @@ export default function SplinePreloader({ children }) {
     const [fadeOut, setFadeOut] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const intervalRef = useRef(null);
+    const canvasRef = useRef(null);
 
     // Simulate incremental progress
     useEffect(() => {
@@ -26,6 +25,17 @@ export default function SplinePreloader({ children }) {
             });
         }, 40);
         return () => clearInterval(intervalRef.current);
+    }, []);
+
+    // Load Spline scene
+    useEffect(() => {
+        if (!canvasRef.current) return;
+        const app = new Application(canvasRef.current);
+        app.load('https://prod.spline.design/HzDYCSfpxj3pRpRT/scene.splinecode')
+            .then(() => handleSplineLoad())
+            .catch(() => handleSplineLoad());
+        return () => app.dispose();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // When Spline scene is fully loaded
@@ -52,11 +62,7 @@ export default function SplinePreloader({ children }) {
         <>
             {!isLoaded && (
                 <div className={`spline-preloader ${fadeOut ? 'spline-preloader--out' : ''}`}>
-                    {/* Spline scene fills the background */}
-                    <Spline
-                        scene="https://prod.spline.design/HzDYCSfpxj3pRpRT/scene.splinecode"
-                        onLoad={handleSplineLoad}
-                    />
+                    <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
 
                     {/* Loading bar — anchored to the bottom */}
                     <div className="preloader-bar-wrap">

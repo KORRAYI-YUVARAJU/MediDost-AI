@@ -1,15 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import { Application } from '@splinetool/runtime';
+import { auth, googleProvider } from '@/lib/firebase';
+import { signInWithPopup } from 'firebase/auth';
 import '../auth.css';
-
-/* Load spline client-only — same scene as the hero */
-const Spline = dynamic(() => import('@splinetool/react-spline'), {
-    ssr: false,
-    loading: () => <div style={{ position: 'absolute', inset: 0, background: '#030712' }} />,
-});
 
 export default function LoginPage() {
     const [flipped, setFlipped] = useState(false);
@@ -25,8 +21,20 @@ export default function LoginPage() {
     const [regPassword, setRegPassword] = useState('');
 
     const router = useRouter();
+    const canvasRef = useRef(null);
 
     const flip = () => setFlipped(f => !f);
+
+    useEffect(() => {
+        let app;
+        if (canvasRef.current) {
+            app = new Application(canvasRef.current);
+            app.load('https://prod.spline.design/qw3R67SM2DvAGBtS/scene.splinecode');
+        }
+        return () => {
+            if (app) app.dispose();
+        };
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -77,15 +85,24 @@ export default function LoginPage() {
         }
     };
 
-    const handleGoogleAuth = () => {
+    const handleGoogleAuth = async () => {
         setIsLoading(true);
-        // During a hackathon without a real Google Cloud Client ID configured,
-        // we simulate the Google OAuth popup and login success flow.
-        setTimeout(() => {
-            localStorage.setItem('medidost_user_name', 'Google User');
-            localStorage.setItem('medidost_user_email', 'google.user@example.com');
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            localStorage.setItem('medidost_user_name', user.displayName || 'Google User');
+            localStorage.setItem('medidost_user_email', user.email);
             router.push('/dashboard');
-        }, 1200);
+        } catch (error) {
+            console.error('Google Auth error:', error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                // User closed the popup, not an error
+                setIsLoading(false);
+            } else {
+                alert('Google sign-in failed. Please try again.');
+                setIsLoading(false);
+            }
+        }
     };
 
     return (
@@ -93,10 +110,7 @@ export default function LoginPage() {
 
             {/* ── Full-screen Spline background (motion trails scene) ── */}
             <div className="auth-spline-bg">
-                <Spline
-                    scene="https://prod.spline.design/qw3R67SM2DvAGBtS/scene.splinecode"
-                    style={{ width: '100%', height: '100%' }}
-                />
+                <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
             </div>
 
             {/* ── 10% black overlay ── */}

@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Spline from '@splinetool/react-spline';
+import { useEffect, useState, useRef } from 'react';
+import { Application } from '@splinetool/runtime';
 
 export default function Hero() {
     const [authPath, setAuthPath] = useState('/register');
+    const canvasRef = useRef(null);
 
     useEffect(() => {
         const storedName = localStorage.getItem('medidost_user_name');
@@ -11,16 +12,24 @@ export default function Hero() {
             setAuthPath('/dashboard');
         }
     }, []);
+
+    useEffect(() => {
+        let app;
+        if (canvasRef.current) {
+            app = new Application(canvasRef.current);
+            app.load('https://prod.spline.design/OoE1x9YThC2LChTy/scene.splinecode');
+        }
+        return () => {
+            if (app) app.dispose();
+        };
+    }, []);
+
     return (
         <section className="hero">
 
             {/* ── Spline canvas: absolute full-size background ── */}
             <div className="hero-spline">
-                <Spline
-                    scene="https://prod.spline.design/OoE1x9YThC2LChTy/scene.splinecode"
-                    width={1920}
-                    height={1080}
-                />
+                <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
             </div>
 
             {/* ── Gradient overlay so text stays readable ── */}

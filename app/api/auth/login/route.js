@@ -1,4 +1,5 @@
-import clientPromise from '@/lib/mongodb';
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
@@ -9,19 +10,18 @@ export async function POST(request) {
             return Response.json({ error: 'Missing credentials' }, { status: 400 });
         }
 
-        const client = await clientPromise;
-        if (!client) {
-            return Response.json({ error: 'Database not connected' }, { status: 500 });
-        }
+        const usersRef = collection(db, 'users');
 
-        const db = client.db('medidost');
-        const users = db.collection('users');
+        // Check user by email
+        const q = query(usersRef, where('email', '==', email), limit(1));
+        const snapshot = await getDocs(q);
 
-        // Check user
-        const user = await users.findOne({ email });
-        if (!user) {
+        if (snapshot.empty) {
             return Response.json({ error: 'Invalid email or password' }, { status: 401 });
         }
+
+        const userDoc = snapshot.docs[0];
+        const user = userDoc.data();
 
         // Compare password
         const isValid = await bcrypt.compare(password, user.password);
@@ -29,10 +29,10 @@ export async function POST(request) {
             return Response.json({ error: 'Invalid email or password' }, { status: 401 });
         }
 
-        // Simplified for Hackathon - return user details to set in frontend
+        // Return user details to set in frontend
         return Response.json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email }
+            user: { id: userDoc.id, name: user.name, email: user.email }
         }, { status: 200 });
 
     } catch (error) {

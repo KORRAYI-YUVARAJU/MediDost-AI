@@ -1,5 +1,6 @@
 import { HfInference } from '@huggingface/inference';
-import clientPromise from '@/lib/mongodb';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import { encryptPII } from '@/lib/encryption';
 
 // Initialize the Hugging Face Inference client
@@ -53,7 +54,6 @@ export async function POST(request) {
         ];
 
         // We use the Qwen2.5-72B-Instruct model on HF's free inference API
-        // It provides extremely fast and smart medical reasoning and streaming
         const stream = hf.chatCompletionStream({
             model: "Qwen/Qwen2.5-72B-Instruct",
             messages: messages,
@@ -76,25 +76,19 @@ export async function POST(request) {
                     }
                     controller.close();
 
-                    // ── SAVE TO DATABASE SAFELY IN PII / PRIVACY MANNER ──
+                    // ── SAVE TO FIREBASE FIRESTORE SAFELY IN PII / PRIVACY MANNER ──
                     try {
-                        const client = await clientPromise;
-                        if (client) {
-                            const db = client.db('medidost');
-                            const chatCollection = db.collection('chats_pii_safe');
-
-                            await chatCollection.insertOne({
-                                sessionId: sessionId,
-                                timestamp: new Date(),
-                                language: language,
-                                // Using securely encrypted text to adhere to user privacy rules
-                                userMessageEncrypted: encryptPII(message),
-                                aiResponseEncrypted: encryptPII(aiResponseBuffer),
-                                contextUsedEncrypted: encryptPII(reportContext || 'none'),
-                            });
-                        }
+                        const chatsRef = collection(db, 'chats_pii_safe');
+                        await addDoc(chatsRef, {
+                            sessionId: sessionId,
+                            timestamp: new Date(),
+                            language: language,
+                            userMessageEncrypted: encryptPII(message),
+                            aiResponseEncrypted: encryptPII(aiResponseBuffer),
+                            contextUsedEncrypted: encryptPII(reportContext || 'none'),
+                        });
                     } catch (dbError) {
-                        console.error('Failed to log to PII-safe MongoDB:', dbError);
+                        console.error('Failed to log to PII-safe Firestore:', dbError);
                     }
 
                 } catch (e) {
@@ -113,7 +107,6 @@ export async function POST(request) {
     } catch (error) {
         console.error('Hugging Face API error:', error);
 
-        // Graceful fallback over stream
         const fallbackText = "🤖 I'm having trouble connecting to Hugging Face servers right now. Please wait a minute and try again.";
         const encoder = new TextEncoder();
         const readableStream = new ReadableStream({

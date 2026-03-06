@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import { Application } from '@splinetool/runtime';
 import './Preloader.css';
-
-const Spline = dynamic(() => import('@splinetool/react-spline'), { ssr: false });
 
 /* Pages where the preloader should be completely skipped */
 const SKIP_PATHS = ['/login', '/register'];
@@ -19,6 +17,7 @@ export default function SplinePreloader({ children }) {
     const [fadeOut, setFadeOut] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const intervalRef = useRef(null);
+    const canvasRef = useRef(null);
 
     useEffect(() => {
         if (skipPreloader) return; // don't run progress timer on auth pages
@@ -34,6 +33,26 @@ export default function SplinePreloader({ children }) {
             });
         }, 40);
         return () => clearInterval(intervalRef.current);
+    }, [skipPreloader]);
+
+    useEffect(() => {
+        if (skipPreloader || !canvasRef.current) return;
+
+        const app = new Application(canvasRef.current);
+        app.load('https://prod.spline.design/HzDYCSfpxj3pRpRT/scene.splinecode')
+            .then(() => {
+                handleSplineLoad();
+            })
+            .catch((err) => {
+                console.error('Spline load error:', err);
+                // Finish loading even if Spline fails
+                handleSplineLoad();
+            });
+
+        return () => {
+            app.dispose();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [skipPreloader]);
 
     const handleSplineLoad = () => {
@@ -63,10 +82,7 @@ export default function SplinePreloader({ children }) {
         <>
             {!isLoaded && (
                 <div className={`spline-preloader ${fadeOut ? 'spline-preloader--out' : ''}`}>
-                    <Spline
-                        scene="https://prod.spline.design/HzDYCSfpxj3pRpRT/scene.splinecode"
-                        onLoad={handleSplineLoad}
-                    />
+                    <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
                     <div className="preloader-bar-wrap">
                         <div className="preloader-bar-header">
                             <span className={`preloader-label ${splineReady ? 'preloader-label--done' : ''}`}>

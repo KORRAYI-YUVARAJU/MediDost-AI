@@ -121,6 +121,11 @@
     transition: border-color 0.4s, box-shadow 0.4s;
 }
 
+/* When flipped, disable pointer events on the front (login) face */
+.flip-scene.is-flipped .flip-front {
+    pointer-events: none;
+}
+
 /* Back face starts rotated 180deg so it appears when the card flips */
 .flip-back {
     position: absolute;
@@ -128,6 +133,12 @@
     /* allow back face to grow taller if needed */
     height: max-content;
     transform: rotateY(180deg);
+    pointer-events: none;
+}
+
+/* When flipped, enable pointer events on the back (register) face */
+.flip-scene.is-flipped .flip-back {
+    pointer-events: auto;
 }
 
 /* ── Auth Container ───────────────────────────────────────────── */
